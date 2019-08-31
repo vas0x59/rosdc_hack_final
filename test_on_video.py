@@ -12,11 +12,12 @@ while ret or (cv2.waitKey(1) != ord('q')):
     ret, frame = cap.read()
     if ret == False:
         break
-    frame = cv2.resize(frame, (360, 200))
-    cv2.imshow("frame", frame)
-    th = rl.thresh(frame)
-    cv2.imshow("th", th)
-    rl.reg_line(th, show=True)
+    # frame = cv2.resize(frame, (360, 200))
+    # cv2.imshow("frame", frame)
+    # th = rl.thresh(frame)
+    # cv2.imshow("th", th)
+    # rl.reg_line(th, show=True)
+    
 
 cv2.destroyAllWindows()
 cap.release()

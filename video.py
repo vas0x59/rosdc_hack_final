@@ -1,6 +1,6 @@
 #!/usr/bin/env
 import cv2
-
+import time
 
 if __name__ == "__main__":
     # find the webcam
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     # video recorder
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    video_writer = cv2.VideoWriter("output.avi", fourcc, 25, (w, h))
+    video_writer = cv2.VideoWriter("time_" + str(int(time.time())) + "output.avi", fourcc, 25, (w, h))
 
     # record video
     while (capture.isOpened()):

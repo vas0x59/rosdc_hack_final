@@ -5,14 +5,14 @@ sender = Sender("tcp://0.0.0.0:1258")
 
 sender.open()
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 i = 0
 
 while True:
     re, image = cap.read()
-    if i == 10:
+    if i == 3:
         sender.send_img(image)
         i = 0
     i+=1
-    cv2.waitKey(10)
+    # cv2.waitKey(1)

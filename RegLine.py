@@ -8,26 +8,10 @@ class RegLine:
     def __init__(self, img_size = [200, 360]):
         self.img_size = img_size
         self.points = []
-        # self.src = np.float32([[20, 200],
-        #           [350, 200],
-        #           [275, 120],
-        #           [85, 120]])
-        # self.src = np.float32([[10, 200],
-        #           [350, 200],
-        #           [275, 120],
-        #           [85, 120]])
-        # self.src = np.float32([[0, 200],
-        #           [360, 200],
-        #           [310, 120],
-        #           [50, 120]])
-        self.src = np.float32([[0, 200],
-                  [360, 200],
-                  [310, 120],
-                  [50, 120]])
-        # self.src = np.float32([[0, 299],
-        #            [399, 299],
-        #            [320, 200],
-        #            [80, 200]])
+        self.src = np.float32([[20, 200],
+                  [350, 200],
+                  [275, 120],
+                  [85, 120]])
 
         self.src_draw=np.array(self.src,dtype=np.int32)
 
@@ -36,28 +20,20 @@ class RegLine:
                         [img_size[1], 0],
                         [0, 0]])
     def thresh(self, img):
-        
         resized = img.copy()
         r_channel=resized[:,:,2]
         binary=np.zeros_like(r_channel)
-        binary[(r_channel>185)]=1
+        binary[(r_channel>180)]=1
         #if show==True:("r_channel",binary)
         
         hls=cv2.cvtColor(resized,cv2.COLOR_BGR2HLS)
         s_channel = resized[:, :, 2]
         binary2 = np.zeros_like(s_channel)
-        binary2[(s_channel > 185)] = 1
+        binary2[(r_channel > 180)] = 1
 
         allBinary= np.zeros_like(binary)
         allBinary[((binary==1)|(binary2==1))]=255
-        
-        # th3 = cv2.adaptiveThreshold(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),255,cv2.ADAPTIVE_THRESH_MEAN_C,\
-        #     cv2.THRESH_BINARY_INV,5,2)
         return allBinary
-    def wrap(self, img):
-        M = cv2.getPerspectiveTransform(self.src, self.dst)
-        warped = cv2.warpPerspective(img, M, (self.img_size[1],self.img_size[0]), flags=cv2.INTER_LINEAR)
-        return warped
 
     def reg_line(self, img, show=False):
         allBinary = cv2.resize(img.copy(), (self.img_size[1], self.img_size[0]))
@@ -86,13 +62,8 @@ class RegLine:
         if show==True:
             cv2.imshow("polygon", allBinary_visual)
 
-        # M = cv2.getPerspectiveTransform(self.src, self.dst)
-        warped = self.wrap(allBinary)
-        # warped = 
-        # warped = cv2.adaptiveThreshold(cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY),255,cv2.ADAPTIVE_THRESH_MEAN_C,\
-        #     cv2.THRESH_BINARY_INV,5,2)
-        warped = self.thresh(warped)
-        warped = cv2.medianBlur(warped, 3)
+        M = cv2.getPerspectiveTransform(self.src, self.dst)
+        warped = cv2.warpPerspective(allBinary, M, (self.img_size[1],self.img_size[0]), flags=cv2.INTER_LINEAR)
         if show==True:
             cv2.imshow("warped",warped)
 
@@ -107,9 +78,9 @@ class RegLine:
         if show==True:
             cv2.imshow("WitestColumn",warped_visual)
 
-        nwindows = 8
+        nwindows = 10
         window_height = np.int(warped.shape[0]/nwindows)
-        window_half_width = 60
+        window_half_width = 40
 
         XCenterLeftWindow = IndWhitestColumnL
         XCenterRightWindow = IndWhitestColumnR
@@ -181,17 +152,13 @@ class RegLine:
         err = 0
         err2 = 0
         if (p_s > 0):
-            qq = p_s//8*4
-            cv2.circle(out_img,(int(self.points[qq-1][0]),int(self.points[qq-1][1])),2,(0,80,255),1)
+            cv2.circle(out_img,(int(self.points[p_s//4-1][0]),int(self.points[p_s//4-1][1])),2,(0,80,255),1)
             cv2.circle(out_img,(int(self.points[p_s-1][0]),int(self.points[p_s-1][1])),2,(0,80,255),1)
-            err2 = self.img_size[0]-(self.points[p_s-1][0]+self.points[qq-1][0])/2+12
-            err = self.points[p_s-1][0]-self.points[qq-1][0]
+            err2 = self.img_size[0]-(self.points[p_s-1][0]+self.points[p_s//4-1][0])/2
+            err = self.points[p_s-1][0]-self.points[p_s//4-1][0]
         if show==True:
             cv2.imshow("CenterLine",out_img)
-        crop = warped[warped.shape[0]-200:warped.shape[0], warped.shape[1]//10*5-50:warped.shape[1]//10*5+50].copy()
-        su = np.sum(crop[:, :])
-        print("su", su)
-        if (err < -80 or err > 80) or (su > 50*20*255*0.8):
+        if err < -80 or err > 80:
             err = 0
             err2 = 0
-        return err, err2, out_img
+        return err, err2

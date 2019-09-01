@@ -5,5 +5,5 @@
 Team: Vasily, Dmitrii
 
 ### Run
-main.py
+main.py\
 main_S.py - with signs

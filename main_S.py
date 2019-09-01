@@ -5,13 +5,26 @@ from RASPI import RASPI
 import time
 import numpy as np
 from WebCam import WebCam
+
+
+import cv2
+import numpy as np 
+from Detectors.YoloOpencvDetector import YoloOpencvDetetor
+from Detectors.SSDOpencvCaffeDetector import SSDOpencvDetetor
+from Detectors import Utils 
+import threading
+# detector = YoloOpencvDetetor("./Detectors/YOLO/yolov3.cfg", "./Detectors/YOLO/yolov3_320.weights")
+detector = YoloOpencvDetetor("./Detectors/YOLO/yolov3_cfg.cfg", "./Detectors/YOLO/yolov3_cfg_8800.weights")
+
+
+
 servo_pid = PID(0.3, 0, 1)
 # servo_pid = PID(0.3, 0, 0.0)
 servo_center = 96
 servo_p_array = [servo_center for i in range(20)]
 servo_angle = servo_center
 servo_angle_p = servo_angle
-S_SPEED = 1549
+S_SPEED = 1547
 first = False
 rpi = RASPI(init=True)
 
@@ -21,7 +34,7 @@ rpi.set_servo(servo_angle)
 
 running = True
 # way = [0, -1, -1, -1, -1, 0]
-way = [-1, 1, 0]
+way = []
 # cap = cv2.VideoCapture(0)
 vs = WebCam(0)
 vs.start()
@@ -144,6 +157,43 @@ def cross(v):
     elif v == 1:
         go_right()
 qwe2 = 0
+
+stop_sign = False
+ped_sign = False
+def REG():
+    global stop_sign, vs, detector, ped_sign
+    frame_i = 0
+    while running:
+        frame = vs.read()
+        if frame_i % 3  == 0:
+            frame = frame[frame.shape[0]//10*4-20:frame.shape[0]//10*8+20, frame.shape[1]//10*7-20:frame.shape[1]]
+            # frame = cv2.resize(frame, (0, 0), fx=0.7, fy=0.7)
+            # boxes, classIDs, confidences = detector.detect(frame, s=(160, 160))
+            boxes, classIDs, confidences = detector.detect(frame, s=(180, 180))
+            # boxes, classIDs, confidences = detector.detect(frame, s=(416, 416))
+            # boxes, classIDs, confidences = detector.detect(frame, s=(608, 608))
+            # boxes, classIDs, confidences = detector.detect(frame, s=(700, 700))
+            print(classIDs)
+            if 5 in classIDs:
+                stop_sign = True
+            else:
+                stop_sign = False
+            if 0 in classIDs:
+                ped_sign = True
+            else:
+                ped_sign = False
+                if 7 in classIDs:
+                    ped_sign = True
+                else:
+                    ped_sign = False
+                
+            # frame = Utils.draw_boxes(frame, boxes, classIDs, confidences, detector.CLASSES, COLORS=detector.COLORS)
+            # out.write(frame)
+
+thread = threading.Thread(target=REG)
+thread.daemon = True
+thread.start()
+
 while running:
     try:
         # ret, frame = cap.read()
@@ -164,20 +214,35 @@ while running:
         # crop = th[img_size[0]//10*6:img_size[0], img_size[1]//10*4:img_size[1]//10*6].copy()
         # su = np.sum(crop[:, :])
         print("sum:", su)
-        if (su > 76000) and qwe2 != len(way) and (time.time() - prev_stop_t ) > 0.8 :
-            if first != True:
+        if stop_sign == True and (time.time() - prev_stop_t ) > 0.8:
+            stop()
+            rpi.set_motor(S_SPEED)
+            prev_stop_t = time.time()
+        # if ped_sign == 
+        if ped_sign == True and (time.time() - prev_stop_t ) > 0.8:
+            stop()
+            time.sleep(2)
+            rpi.set_servo(90+20)
+            time.sleep(2)
+            rpi.set_servo(90-20)
+            time.sleep(2)
+            rpi.set_servo(90)
+            # rpi.set_motor(S_SPEED)
+            prev_stop_t = time.time()
+        # if (su > 76000) and qwe2 != len(way) and (time.time() - prev_stop_t ) > 0.8 :
+        #     if first != True:
                 
-                print("stop")
+        #         print("stop")
                 
-                stop()
-                # cross 
-                cross(way[qwe2])
-                rpi.set_motor(S_SPEED)
-                qwe2 +=1
-                prev_stop_t = time.time()
-            else:
-                first = True
-                prev_stop_t = time.time()
+        #         stop()
+        #         # cross 
+        #         cross(way[qwe2])
+        #         rpi.set_motor(S_SPEED)
+        #         qwe2 +=1
+        #         prev_stop_t = time.time()
+        #     else:
+        #         first = True
+        #         prev_stop_t = time.time()
         if (e == 0) and (e2 == 0):
             servo_angle = servo_angle_p
         else:
@@ -196,6 +261,7 @@ while running:
         rpi.set_motor(1500)
         rpi.set_servo(servo_center)
         break
+running = False
 # cap.release()
 rpi.set_motor(1500)
 rpi.set_servo(servo_center)

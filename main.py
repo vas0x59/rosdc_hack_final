@@ -185,7 +185,10 @@ while running:
         video_writer.write(frame)
     except KeyboardInterrupt:
         rpi.set_motor(1500)
+        rpi.set_servo(servo_center)
         break
 # cap.release()
+rpi.set_motor(1500)
+rpi.set_servo(servo_center)
 vs.stop()
 video_writer.release()

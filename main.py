@@ -12,7 +12,7 @@ servo_p_array = [servo_center for i in range(20)]
 servo_angle = servo_center
 servo_angle_p = servo_angle
 S_SPEED = 1550
-
+#DIMA
 rpi = RASPI(init=True)
 
 rpi.calibrate()

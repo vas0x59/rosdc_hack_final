@@ -1,1 +1,6 @@
 *.avi
+*.pyc
+__pycache__/*
+__pycache__/reg_line1.cpython-37.pyc
+!video/new/time_1559139557output.avi
+

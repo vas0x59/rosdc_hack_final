@@ -20,10 +20,18 @@ class RegLine:
         #           [360, 200],
         #           [310, 120],
         #           [50, 120]])
+
+        #good
+        # self.src = np.float32([[0, 200],
+        #           [360, 200],
+        #           [310, 120],
+        #           [50, 120]])
+
         self.src = np.float32([[0, 200],
                   [360, 200],
-                  [310, 120],
-                  [50, 120]])
+                  [300, 100],
+                  [60, 100]])
+
         # self.src = np.float32([[0, 299],
         #            [399, 299],
         #            [320, 200],
@@ -82,8 +90,9 @@ class RegLine:
 
 
         allBinary_visual=allBinary.copy()
-        cv2.polylines(allBinary_visual,[self.src_draw],True,255)
+        
         if show==True:
+            cv2.polylines(allBinary_visual,[self.src_draw],True,255)
             cv2.imshow("polygon", allBinary_visual)
 
         # M = cv2.getPerspectiveTransform(self.src, self.dst)
@@ -102,9 +111,9 @@ class RegLine:
         IndWhitestColumnL = np.argmax(histogram[:midpoint])
         IndWhitestColumnR = np.argmax(histogram[midpoint:])+midpoint
         warped_visual = warped.copy()
-        cv2.line(warped_visual, (IndWhitestColumnL,0), (IndWhitestColumnL,warped_visual.shape[0]), 110, 2)
-        cv2.line(warped_visual, (IndWhitestColumnR, 0), (IndWhitestColumnR, warped_visual.shape[0]), 110, 2)
         if show==True:
+            cv2.line(warped_visual, (IndWhitestColumnL,0), (IndWhitestColumnL,warped_visual.shape[0]), 110, 2)
+            cv2.line(warped_visual, (IndWhitestColumnR, 0), (IndWhitestColumnR, warped_visual.shape[0]), 110, 2)
             cv2.imshow("WitestColumn",warped_visual)
 
         nwindows = 8
@@ -133,9 +142,9 @@ class RegLine:
             right_win_x1 = XCenterRightWindow - window_half_width
             right_win_x2 = XCenterRightWindow + window_half_width
 
-            cv2.rectangle(out_img, (left_win_x1,win_y1),(left_win_x2,win_y2),(50 + window *21,0,0),2)
-            cv2.rectangle(out_img, (right_win_x1, win_y1), (right_win_x2, win_y2), (0, 0, 50 + window * 21), 2)
             if show==True:
+                cv2.rectangle(out_img, (left_win_x1,win_y1),(left_win_x2,win_y2),(50 + window *21,0,0),2)
+                cv2.rectangle(out_img, (right_win_x1, win_y1), (right_win_x2, win_y2), (0, 0, 50 + window * 21), 2)
                 cv2.imshow("windows",out_img)
 
             good_left_inds = ((WhitePixelIndY>=win_y1) & (WhitePixelIndY<=win_y2) &

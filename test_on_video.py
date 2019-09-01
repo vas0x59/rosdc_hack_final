@@ -20,7 +20,7 @@ while ret:
     # cv2.imshow("th", th)
     e, e2, _= rl.reg_line(frame, show=True)
     print(e, e2)
-    if cv2.waitKey(50) == ord('q'):
+    if cv2.waitKey(38) == ord('q'):
         break
 
 

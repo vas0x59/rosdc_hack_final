@@ -1,11 +1,9 @@
 # cv_hack_final
 
+1st place in ROSDC
 
+Team: Vasily, Dmitrii
 
-## ToDo
-
-1.Check  Car
-2.Test Car
-3.Reg Video
-4.Tune Line
-5.test
+### Run
+main.py\
+main_S.py - with signs

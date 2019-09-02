@@ -124,7 +124,7 @@ class RegLine:
         # warped = cv2.dilate(warped,np.ones((1,1),np.uint8),iterations = 1)
         # warped = 
         # warped = self.thresh(warped)
-        opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, np.ones((3,3),np.uint8))
+        # warped = cv2.morphologyEx(warped, cv2.MORPH_OPEN, np.ones((3,3),np.uint8))
         warped = cv2.medianBlur(warped, 3)
         if show==True:
             cv2.imshow("warped",warped)
